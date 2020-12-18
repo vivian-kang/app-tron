@@ -18,11 +18,7 @@
 #include "helpers.h"
 #include "base58.h"
 
-#ifndef TARGET_BLUE
-  #include "os_io_seproxyhal.h"
-#else
-  void io_seproxyhal_io_heartbeat(void) {}
-#endif
+#include "os_io_seproxyhal.h"
 
 void getAddressFromKey(cx_ecfp_public_key_t *publicKey, uint8_t *address) {
   return getAddressFromPublicKey(publicKey->W, address);
