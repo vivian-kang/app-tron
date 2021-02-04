@@ -29,7 +29,6 @@
 #include "settings.h"
 #include "parse.h"
 #include "uint256.h"
-#include "tokens.h"
 #include "errors.h"
 
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
@@ -107,7 +106,7 @@ unsigned int io_seproxyhal_touch_signMessage_ok(const bagl_element_t *e);
 #define VOTE_PACK (VOTE_ADDRESS_SIZE+VOTE_AMOUNT_SIZE)
 #define voteSlot(index, type) ( (index*VOTE_PACK)+type )
 
-void fillVoteAddressSlot(void *destination, const char * from, uint8_t index) {
+void fillVoteAddressSlot(char *destination, const char * from, uint8_t index) {
     memset(destination + voteSlot(index, VOTE_ADDRESS), 0, VOTE_PACK);
     memcpy(destination + voteSlot(index, VOTE_ADDRESS), from, 5);
     memcpy(destination + 5 + voteSlot(index, VOTE_ADDRESS), "...", 3);
@@ -115,9 +114,9 @@ void fillVoteAddressSlot(void *destination, const char * from, uint8_t index) {
     PRINTF("Vote Address: %d - %s\n", index, destination + voteSlot(index, VOTE_ADDRESS));
 }
 
-void fillVoteAmountSlot(void *destination, uint64_t value, uint8_t index) {
-    print_amount(value,destination+voteSlot(index, VOTE_AMOUNT),VOTE_AMOUNT_SIZE, 0);
-    PRINTF("Amount: %d - %s\n", index, destination+(voteSlot(index, VOTE_AMOUNT)));
+void fillVoteAmountSlot(char *destination, uint64_t value, uint8_t index) {
+    print_amount(value, destination + voteSlot(index, VOTE_AMOUNT), VOTE_AMOUNT_SIZE, 0);
+    PRINTF("Amount: %d - %s\n", index, destination + (voteSlot(index, VOTE_AMOUNT)));
 }
 
 void ui_idle(void);
@@ -3050,8 +3049,8 @@ void handleSign(uint8_t p1, uint8_t p2, uint8_t *workBuffer,
         case EXCHANGECREATECONTRACT:
             strlcpy(fullContract, txContent.tokenNames[0], sizeof(fullContract));
             strlcpy(toAddress, txContent.tokenNames[1], sizeof(toAddress));
-            print_amount(txContent.amount[0],(void *)G_io_apdu_buffer,100, (strncmp((const char *)txContent.tokenNames[0], "TRX", 3)==0)?SUN_DIG:txContent.decimals[0]);
-            print_amount(txContent.amount[1],(void *)G_io_apdu_buffer+100,100, (strncmp((const char *)txContent.tokenNames[1], "TRX", 3)==0)?SUN_DIG:txContent.decimals[1]);
+            print_amount(txContent.amount[0], (char *) G_io_apdu_buffer,100, (strncmp(txContent.tokenNames[0], "TRX", 3)==0) ? SUN_DIG : txContent.decimals[0]);
+            print_amount(txContent.amount[1], (char *) G_io_apdu_buffer + 100, 100, (strncmp(txContent.tokenNames[1], "TRX", 3) == 0) ? SUN_DIG : txContent.decimals[1]);
 
             #if defined(TARGET_BLUE)
                 G_ui_approval_blue_state = APPROVAL_EXCHANGE_CREATE;
@@ -3081,11 +3080,11 @@ void handleSign(uint8_t p1, uint8_t p2, uint8_t *workBuffer,
         break;
         case EXCHANGETRANSACTIONCONTRACT:
             //os_memmove((void *)fullContract, txContent.tokenNames[0], txContent.tokenNamesLength[0]+1);
-            snprintf((char *)fullContract, sizeof(fullContract), "%s -> %s", txContent.tokenNames[0], txContent.tokenNames[1]);
+            snprintf(fullContract, sizeof(fullContract), "%s -> %s", txContent.tokenNames[0], txContent.tokenNames[1]);
 
-            print_amount(txContent.exchangeID,(void *)toAddress,sizeof(toAddress), 0);
-            print_amount(txContent.amount[0],(void *)G_io_apdu_buffer,100, txContent.decimals[0]);
-            print_amount(txContent.amount[1],(void *)G_io_apdu_buffer+100,100, txContent.decimals[1]);
+            print_amount(txContent.exchangeID, toAddress, sizeof(toAddress), 0);
+            print_amount(txContent.amount[0], (char *) G_io_apdu_buffer, 100, txContent.decimals[0]);
+            print_amount(txContent.amount[1], (char *) G_io_apdu_buffer + 100, 100, txContent.decimals[1]);
 
             #if defined(TARGET_BLUE)
                 G_ui_approval_blue_state = APPROVAL_EXCHANGE_TRANSACTION;
@@ -3152,7 +3151,7 @@ void handleSign(uint8_t p1, uint8_t p2, uint8_t *workBuffer,
                     ux_approval_vote_flow[step++] = &ux_approval_vote_flow_4_step;
                 if (votes_count-- > 0)
                     ux_approval_vote_flow[step++] = &ux_approval_vote_flow_5_step;
-                if (votes_count-- > 0)
+                if (votes_count > 0)
                     ux_approval_vote_flow[step++] = &ux_approval_vote_flow_6_step;
 
                 ux_approval_vote_flow[step++] = &ux_approval_from_address_step;
@@ -3418,7 +3417,7 @@ void handleSignPersonalMessage(uint8_t p1, uint8_t p2, uint8_t *workBuffer, uint
                 sizeof(SIGN_MAGIC) - 1, NULL, 32);
 
         char tmp[11];
-        snprintf((char *)tmp, 11,"%d",(uint32_t)txContent.dataBytes);
+        snprintf(tmp, 11, "%d", (int) txContent.dataBytes);
         cx_hash((cx_hash_t *)&sha3, 0, (const uint8_t *)tmp, strlen(tmp), NULL,32);
 
     } else if (p1 != P1_MORE) {
@@ -3593,7 +3592,6 @@ void handleApdu(volatile unsigned int *flags, volatile unsigned int *tx) {
 
 // App main loop
 void tron_main(void) {
-    volatile unsigned int rx = 0;
     volatile unsigned int tx = 0;
     volatile unsigned int flags = 0;
 
@@ -3608,7 +3606,7 @@ void tron_main(void) {
 
         BEGIN_TRY {
             TRY {
-                rx = tx;
+                volatile unsigned int rx = tx;
                 tx = 0; // ensure no race in catch_other if io_exchange throws
                         // an error
                 rx = io_exchange(CHANNEL_APDU | flags, rx);

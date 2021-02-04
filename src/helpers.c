@@ -59,13 +59,6 @@ void getBase58FromAddress(const uint8_t *address, char *out, cx_sha256_t *sha2, 
   }
 }
 
-void transactionHash(uint8_t *raw, uint16_t dataLength,
-                        uint8_t *out, cx_sha256_t* sha2) {
-   
-    cx_sha256_init(sha2);
-    cx_hash((cx_hash_t*)sha2, CX_LAST, raw, dataLength, out, 32);    
-}
-
 void signTransaction(transactionContext_t *transactionContext) {
    
     uint8_t privateKeyData[32];

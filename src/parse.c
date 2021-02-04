@@ -103,8 +103,7 @@ bool adjustDecimals(const char *src, uint32_t srcLength, char *target,
     }
     return true;
 }
-unsigned short print_amount(uint64_t amount, uint8_t *out,
-                                uint32_t outlen, uint8_t sun) {
+unsigned short print_amount(uint64_t amount, char *out, uint32_t outlen, uint8_t sun) {
     char tmp[20];
     char tmp2[25];
     uint32_t numDigits = 0, i;
@@ -124,14 +123,14 @@ unsigned short print_amount(uint64_t amount, uint8_t *out,
     tmp[i] = '\0';
     adjustDecimals(tmp, i, tmp2, 25, sun);
     if (strlen(tmp2) < outlen - 1) {
-        strcpy((char *)out, tmp2);
+        strcpy(out, tmp2);
     } else {
         out[0] = '\0';
     }
-    return strlen((char *)out);
+    return strlen(out);
 }
 
-bool setContractType(uint8_t type, void *out){
+bool setContractType(uint8_t type, char *out){
     switch (type){
         case ACCOUNTCREATECONTRACT:
             strcpy(out, "Account Create");
@@ -225,10 +224,10 @@ bool parseTokenName(uint8_t token_id, uint8_t *data, uint32_t dataLength, txCont
   }
 
   // Validate token ID + Name
-  if (verifyTokenNameID((const char *)content->tokenNames[token_id],
+  if (verifyTokenNameID(content->tokenNames[token_id],
                         details.name, details.precision,
                         details.signature.bytes, details.signature.size,
-                        content->publicKeyContext) != 1) {
+                        &content->publicKeyContext->publicKey) != 1) {
     return false;
   }
 
@@ -316,9 +315,9 @@ bool parseExchange(const uint8_t *data,
   msg_size += strlen(details.token1Id) + strlen(details.token1Name) + 1;
   msg_size += strlen(details.token2Id) + strlen(details.token2Name) + 1;
 
-  if (!verifyExchangeID((uint8_t *)buffer, msg_size,
+  if (!verifyExchangeID(buffer, msg_size,
                         details.signature.bytes, details.signature.size,
-                        content->publicKeyContext)) {
+                        &content->publicKeyContext->publicKey)) {
     return false;
   }
 

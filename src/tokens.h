@@ -15,12 +15,14 @@
 *  limitations under the License.
 ********************************************************************************/
 
-#include "os.h"
-#include "parse.h"
+#pragma once
 
+#include "cx.h"
 
-int verifyTokenNameID(const char *tokenId, const char *tokenName, uint8_t decimals, uint8_t *signature, uint8_t signatureLength, publicKeyContext_t *publicKeyContext);
-int verifyExchangeID(const unsigned char *exchangeValidation,  uint8_t datLength, uint8_t *signature, uint8_t signatureLength, publicKeyContext_t *publicKeyContext);
+#include <stdint.h>
+
+int verifyTokenNameID(const char *tokenId, const char *tokenName, uint8_t decimals, uint8_t *signature, uint8_t signatureLength, cx_ecfp_public_key_t *publicKey);
+int verifyExchangeID(const char *exchangeValidation, uint8_t datLength, uint8_t *signature, uint8_t signatureLength, cx_ecfp_public_key_t *publicKey);
 
 typedef struct tokenDefinition_t {
     uint8_t address[21];

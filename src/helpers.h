@@ -15,13 +15,13 @@
 *  limitations under the License.
 ********************************************************************************/
 
+#ifndef HELPERS_H
+#define HELPERS_H
+
 #include "os.h"
 #include "cx.h"
 
 #include "parse.h"
-
-#ifndef HELPER_H
-#define HELPER_H
 
 #ifdef TARGET_BLUE
 void io_seproxyhal_io_heartbeat(void);

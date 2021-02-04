@@ -16,6 +16,10 @@
 ********************************************************************************/
 
 #include "tokens.h"
+
+#include "os.h"
+#include "cx.h"
+
 #include <string.h>
 
 #ifndef TARGET_BLUE
@@ -409,7 +413,7 @@ const tokenDefinition_t TOKENS_TRC20[NUM_TOKENS_TRC20] = {
     {{0x41,0x6a,0x63,0x37,0xae,0x47,0xa0,0x9a,0xea,0x0b,0xbd,0x4f,0xae,0xb2,0x3c,0xa9,0x43,0x49,0xc7,0xb7,0x74}, "WBTT", 6},
 };
 
-int verifyTokenNameID(const char *tokenId, const char *tokenName, uint8_t decimals, uint8_t *signature, uint8_t signatureLength, publicKeyContext_t *publicKeyContext){
+int verifyTokenNameID(const char *tokenId, const char *tokenName, uint8_t decimals, uint8_t *signature, uint8_t signatureLength, cx_ecfp_public_key_t *publicKey) {
     uint8_t buffer[65];
     cx_sha256_t sha2;
     uint8_t hash[32];
@@ -421,10 +425,10 @@ int verifyTokenNameID(const char *tokenId, const char *tokenName, uint8_t decima
     cx_sha256_init(&sha2); //init sha
     cx_hash((cx_hash_t *)&sha2, CX_LAST, buffer, strlen(tokenId)+strlen(tokenName)+1, hash, 32);
 
-    cx_ecfp_init_public_key(CX_CURVE_256K1,(uint8_t *)PIC(&token_public_key), 65, &(publicKeyContext->publicKey));
+    cx_ecfp_init_public_key(CX_CURVE_256K1,(uint8_t *)PIC(&token_public_key), 65, publicKey);
 
     io_seproxyhal_io_heartbeat();
-    int ret = cx_ecdsa_verify((cx_ecfp_public_key_t WIDE *)&(publicKeyContext->publicKey), CX_LAST,
+    int ret = cx_ecdsa_verify(publicKey, CX_LAST,
                     CX_SHA256, hash, 32,
                     signature, signatureLength);
     io_seproxyhal_io_heartbeat();
@@ -432,17 +436,17 @@ int verifyTokenNameID(const char *tokenId, const char *tokenName, uint8_t decima
     return ret;
 }
 
-int verifyExchangeID(const unsigned char *exchangeValidation, uint8_t datLength, uint8_t *signature, uint8_t signatureLength, publicKeyContext_t *publicKeyContext){
+int verifyExchangeID(const char *exchangeValidation, uint8_t datLength, uint8_t *signature, uint8_t signatureLength, cx_ecfp_public_key_t *publicKey){
     cx_sha256_t sha2;
     uint8_t hash[32];
 
     cx_sha256_init(&sha2); //init sha
-    cx_hash((cx_hash_t *)&sha2, CX_LAST, exchangeValidation, datLength, hash, 32);
+    cx_hash((cx_hash_t *)&sha2, CX_LAST, (uint8_t *) exchangeValidation, datLength, hash, 32);
 
-    cx_ecfp_init_public_key(CX_CURVE_256K1,(uint8_t *)PIC(&token_public_key), 65, &(publicKeyContext->publicKey));
+    cx_ecfp_init_public_key(CX_CURVE_256K1,(uint8_t *)PIC(&token_public_key), 65, publicKey);
 
     io_seproxyhal_io_heartbeat();
-    int ret = cx_ecdsa_verify((cx_ecfp_public_key_t WIDE *)&(publicKeyContext->publicKey), CX_LAST,
+    int ret = cx_ecdsa_verify(publicKey, CX_LAST,
                     CX_SHA256, hash, 32,
                     signature, signatureLength);
     io_seproxyhal_io_heartbeat();
