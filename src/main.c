@@ -2974,7 +2974,7 @@ void handleSign(uint8_t p1, uint8_t p2, uint8_t *workBuffer,
                 if (txContent.TRC20Method==1)
                     os_memmove((void *)TRC20Action, "Asset\0", 6);
                 else if (txContent.TRC20Method==2){
-                    os_memmove((void *)TRC20ActionSendAllow, "Allow\0", 8);
+                    strlcpy(TRC20ActionSendAllow, "Allow", sizeof(TRC20ActionSendAllow));
                     os_memmove((void *)TRC20Action, "Approve\0", 8);
                 }else {
                     if (!HAS_SETTING(S_CUSTOM_CONTRACT)) THROW(E_MISSING_SETTING_CUSTOM_CONTRACT);
