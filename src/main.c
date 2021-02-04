@@ -1882,7 +1882,7 @@ UX_STEP_VALID(
 
 UX_STEP_VALID(
     ux_approval_reject_step,
-    pb,
+    pbb,
     io_seproxyhal_touch_cancel(NULL),
     {
       &C_icon_crossmark,
