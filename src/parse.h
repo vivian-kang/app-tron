@@ -11,7 +11,7 @@
 #define ADD_PRE_FIX_STRING "T"
 #define ADDRESS_SIZE 21
 #define TOKENID_SIZE 7
-#define BASE58CHECK_ADDRESS_SIZE 34
+#define BASE58CHECK_ADDRESS_LENGTH 34
 #define BASE58CHECK_PK_SIZE 64
 #define HASH_SIZE 32
 
@@ -95,7 +95,7 @@ typedef struct txContext_t {
 typedef struct publicKeyContext_t {
     cx_ecfp_public_key_t publicKey;
     uint8_t address[ADDRESS_SIZE];
-    uint8_t address58[BASE58CHECK_ADDRESS_SIZE];
+    uint8_t address58[BASE58CHECK_ADDRESS_LENGTH + 1];
     uint8_t chainCode[32];
     bool getChaincode;
 } publicKeyContext_t;

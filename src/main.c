@@ -81,8 +81,8 @@ txContext_t txContext;
 cx_sha256_t sha2;
 
 volatile uint8_t customContractField;
-volatile char fromAddress[BASE58CHECK_ADDRESS_SIZE+1+5]; // 5 extra bytes used to inform MultSign ID
-volatile char toAddress[BASE58CHECK_ADDRESS_SIZE+1];
+volatile char fromAddress[BASE58CHECK_ADDRESS_LENGTH + 1 + 5]; // 5 extra bytes used to inform MultSign ID
+volatile char toAddress[BASE58CHECK_ADDRESS_LENGTH + 1];
 volatile char addressSummary[40];
 volatile char fullContract[MAX_TOKEN_LENGTH];
 volatile char TRC20Action[9];
@@ -111,7 +111,7 @@ void fillVoteAddressSlot(void *destination, const char * from, uint8_t index) {
     os_memset(destination+voteSlot(index, VOTE_ADDRESS), 0, VOTE_PACK);
     os_memmove(destination+voteSlot(index, VOTE_ADDRESS), from, 5);
     os_memmove(destination+5+voteSlot(index, VOTE_ADDRESS), "...", 3);
-    os_memmove(destination+8+voteSlot(index, VOTE_ADDRESS), from+(BASE58CHECK_ADDRESS_SIZE-5), 5);
+    os_memmove(destination+8+voteSlot(index, VOTE_ADDRESS), from+(BASE58CHECK_ADDRESS_LENGTH-5), 5);
     PRINTF("Vote Address: %d - %s\n", index, destination+(voteSlot(index, VOTE_ADDRESS)));
 }
 
@@ -2702,7 +2702,7 @@ unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len) {
 
 uint32_t set_result_get_publicKey() {
     uint32_t tx = 0;
-    uint32_t addressLength = BASE58CHECK_ADDRESS_SIZE;
+    uint32_t addressLength = BASE58CHECK_ADDRESS_LENGTH;
     G_io_apdu_buffer[tx++] = 65;
     os_memmove(G_io_apdu_buffer + tx, publicKeyContext.publicKey.W, 65);
     tx += 65;
@@ -2829,11 +2829,10 @@ void handleGetPublicKey(uint8_t p1, uint8_t p2, uint8_t *dataBuffer,
     getAddressFromKey(&publicKeyContext.publicKey, publicKeyContext.address);
 
     // Get Base58
-    getBase58FromAddress(publicKeyContext.address,
-                                publicKeyContext.address58, &sha2, false);
+    getBase58FromAddress(publicKeyContext.address, publicKeyContext.address58, &sha2, false);
 
-    os_memmove((void *)toAddress,publicKeyContext.address58,BASE58CHECK_ADDRESS_SIZE);
-    toAddress[BASE58CHECK_ADDRESS_SIZE]='\0';
+    os_memmove((void *)toAddress,publicKeyContext.address58, BASE58CHECK_ADDRESS_LENGTH);
+    toAddress[BASE58CHECK_ADDRESS_LENGTH]='\0';
 
     if (p1 == P1_NON_CONFIRM) {
         *tx=set_result_get_publicKey();
@@ -3463,7 +3462,7 @@ void handleSignPersonalMessage(uint8_t p1, uint8_t p2, uint8_t *workBuffer, uint
         getBase58FromAddress(publicKeyContext.address,
                                     (uint8_t *)fromAddress, &sha2, false);
 
-        fromAddress[BASE58CHECK_ADDRESS_SIZE]='\0';
+        fromAddress[BASE58CHECK_ADDRESS_LENGTH]= '\0';
 
         #if defined(TARGET_BLUE)
             G_ui_approval_blue_state = APPROVAL_SIGN_PERSONAL_MESSAGE;
