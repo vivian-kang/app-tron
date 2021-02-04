@@ -15,9 +15,6 @@
 *  limitations under the License.
 ********************************************************************************/
 
-#include "os.h"
-#include "cx.h"
-
 #ifndef BASE58_H
 #define BASE58_H
 

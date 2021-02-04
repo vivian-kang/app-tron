@@ -492,6 +492,8 @@ static bool account_update_contract(txContent_t *content,
 }
 
 bool pb_decode_trigger_smart_contract_data(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+  (void) field ;
+
   if (stream->bytes_left < 4) {
     return false;
   }

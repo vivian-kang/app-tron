@@ -95,7 +95,7 @@ typedef struct txContext_t {
 typedef struct publicKeyContext_t {
     cx_ecfp_public_key_t publicKey;
     uint8_t address[ADDRESS_SIZE];
-    uint8_t address58[BASE58CHECK_ADDRESS_LENGTH + 1];
+    char address58[BASE58CHECK_ADDRESS_LENGTH + 1];
     uint8_t chainCode[32];
     bool getChaincode;
 } publicKeyContext_t;
@@ -120,7 +120,7 @@ typedef struct txContent_t {
     uint8_t contractAddress[ADDRESS_SIZE];
     uint8_t TRC20Amount[32];
     uint8_t decimals[2];
-    uint8_t tokenNames[2][MAX_TOKEN_LENGTH];
+    char tokenNames[2][MAX_TOKEN_LENGTH];
     uint8_t tokenNamesLength[2];
     uint8_t resource;
     uint8_t TRC20Method;
